@@ -27,19 +27,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-
-
 	//Router
 	r := mux.NewRouter()
 	//API Routes
-	r.HandleFunc("/lm/home/", Home).Methods("GET")
-
-
+	r.HandleFunc("/lm/home/", Home).Methods("POST")
 	//Health Check Routes
 	h := health.NewHandler()
 	h.AddChecker("Vault", url.NewChecker(fmt.Sprintf("%s://%s:%s/v1/sys/health?perfstandbyok=true", VaultClient.Scheme, VaultClient.Host, VaultClient.Port)))
 	r.Path("/health").Handler(h).Methods("GET")
-
 
 	//Server config - http
 	go func() {
@@ -86,7 +81,7 @@ func intConfig()  (string , error, *client.Vault){
 		log.Fatal(err)
 	}
 
-	secret, err := vault.GetSecret("secret-v1/lm-authorization-svc/dev")
+	secret, err := vault.GetSecret("secret-v1/lifemiles-authorization-svc/dev")
 
 	if err != nil {
 		return string(config.Server.Port), err , &vault

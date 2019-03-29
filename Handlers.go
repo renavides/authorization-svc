@@ -2,13 +2,17 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"io"
 	"log"
 	"net/http"
 	"strings"
 )
 
 func Home(w http.ResponseWriter, r *http.Request){
+	val := r.URL.Path[len("/lm/home/"):]
+	fmt.Println(val)
 	auth := strings.SplitN(r.Header.Get("Authorization"), " ", 2)
 	claims := jwt.MapClaims{}
 	token, err := jwt.ParseWithClaims(string(auth[1]), claims, func(token *jwt.Token) (interface{}, error) {
@@ -17,11 +21,11 @@ func Home(w http.ResponseWriter, r *http.Request){
 	// ... error handling
 	if err != nil{
 		log.Println(err)
-		respondWithError(w,http.StatusUnauthorized, "401 Unauthorized")
+		respondWithError(w,http.StatusForbidden, "403 Forbidden")
 		return
 	}
 	if !token.Valid {
-		respondWithError(w,http.StatusUnauthorized, "401 Unauthorized")
+		respondWithError(w,http.StatusForbidden, "403 Forbidden")
 		return
 	}
 
@@ -33,10 +37,24 @@ func Home(w http.ResponseWriter, r *http.Request){
 	}
 	if ok == true {
 		//gate
+		r.Host = "localhost:31062"
+		r.URL.Host = "localhost:31062"
+		r.URL.Scheme = "http"
+		r.RequestURI = ""
+		r.URL.Path = "/integrator/v1/page/homepage/"
+		resp, err := http.DefaultClient.Do(r)
+		if err != nil {
+			log.Println(err)
+			respondWithError(w,http.StatusInternalServerError, "500 Internal Server Error")
+			return
+		}
+		io.Copy(w,resp.Body)
+		w.WriteHeader(http.StatusOK)
+
 	}
 
 
-	respondWithJson(w, http.StatusOK, "200 Ok")
+	//respondWithJson(w, http.StatusOK, "200 Ok")
 
 }
 
