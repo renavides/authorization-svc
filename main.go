@@ -81,7 +81,7 @@ func intConfig()  (string , error, *client.Vault){
 		log.Fatal(err)
 	}
 
-	secret, err := vault.GetSecret("secret-v1/lifemiles-authorization-svc/dev")
+	secret, err := vault.GetSecret("secret-v1/lm-auth-svc/dev")
 
 	if err != nil {
 		return string(config.Server.Port), err , &vault

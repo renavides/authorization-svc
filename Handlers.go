@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
-	"io"
 	"log"
 	"net/http"
 	"strings"
@@ -36,29 +35,17 @@ func Home(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	if ok == true {
-		//gate
-		r.Host = "localhost:31062"
-		r.URL.Host = "localhost:31062"
-		r.URL.Scheme = "http"
-		r.RequestURI = ""
-		r.URL.Path = "/integrator/v1/page/homepage/"
-		resp, err := http.DefaultClient.Do(r)
-		if err != nil {
-			log.Println(err)
-			respondWithError(w,http.StatusInternalServerError, "500 Internal Server Error")
-			return
+		g := Gateway{
+			Path: "/lm/home/",
+             Url: "http://localhost:31062/integrator/v1/page/homepage",
+             Context: val,
 		}
-		io.Copy(w,resp.Body)
-		w.WriteHeader(http.StatusOK)
-
+		g.createGateway(w,r)
 	}
-
-
-	//respondWithJson(w, http.StatusOK, "200 Ok")
-
 }
 
-func validateTid(interface{}) (bool, error){
+func validateTid( i interface{}) (bool, error){
+	fmt.Println(i)
 	return true, nil
 }
 
